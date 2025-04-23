@@ -1,5 +1,5 @@
 import axios from "axios";
-import cheerio from 'cheerio'
+import * as cheerio from 'cheerio'
 import db from './db.js'
 
 const BASE_URL = 'https://anime-sama.fr/catalogue/index.php?page='
@@ -11,20 +11,27 @@ async function scrapePage(pageNumber) {
 
         const animes = [];
 
-        $('body').find('div').each((i, el) => {
-            const title = $(el).find('strong').text().trim();
-            const genres = $(el).text().split('\n')[1]?.trim();
+        $('#list_catalog > div').each((_, element) => {
+            const title = $(element).find('h1').text().trim();
+            const description = $(element).find('p.italic').text().trim();
+            const genre = $(element).find('p.text-gray-300').text().trim();
+            const cover_url = $(element).find('img').attr('src');
 
-            if (title && genres) {
-                animes.push({ title, genres })
+            if (title && cover_url) {
+                animes.push({
+                    title,
+                    description,
+                    genre,
+                    cover_url: cover_url.startsWith('http') ? cover_url : 'https:' + cover_url
+                })
             }
         });
 
         const conn = await db.getConnection();
         for (const anime of animes) {
             await conn.query(
-                'INSERT INTO animes (title, genre) VALUES (?, ?)'
-                [anime.title, anime.genres]
+                'INSERT INTO animes (title, description, genre, cover_url) VALUES (?, ?, ?, ?)',
+                [anime.title, anime.description, anime.genres, anime.cover_url]
             );
         }
         conn.release();
@@ -36,7 +43,7 @@ async function scrapePage(pageNumber) {
 }
 
 (async () => {
-    for (let i = 1; i <= 35; i++) {
+    for (let i = 1; i <= 10; i++) {
         await scrapePage(i)
     }
 })();
