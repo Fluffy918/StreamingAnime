@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../css/HomePage.css";
+import Nav from "../components/Nav";
+import Footer from "../components/Footer";
 
 function HomePage() {
     const [animes, setAnimes] = useState([]);
@@ -26,6 +28,9 @@ function HomePage() {
     
     return(
         <div className="homepage-container">
+            <Nav/>
+            <br />
+            <br />
             <h1 className="homepage-title">Animes disponibles</h1>
             <div className="anime-grid">
                 {Array.isArray(animes) && animes.length > 0 ? (
@@ -42,6 +47,7 @@ function HomePage() {
                     <p className="anime-error">Aucun anime trouvé ou chargement en cours...</p>
                 )}
             </div>
+            <Footer/>
         </div>
     )
 }
