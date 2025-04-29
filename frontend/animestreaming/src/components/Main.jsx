@@ -1,8 +1,9 @@
 import HomePage from "../pages/HomePage"
 
+
 function Main() {
     return(
-        <div className="">
+        <div>
             <HomePage/>
         </div>
     )
